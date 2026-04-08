@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Directory</title>
+    <link rel="icon" href="https://logo.clearbit.com/anthropic.com" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .fade-in {
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.6s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50">
+    <!-- NAVBAR -->
+    <nav
+      class="w-full bg-white shadow px-6 py-4 flex justify-between items-center sticky top-0 z-20"
+    >
+      <div class="flex items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-6 h-6 text-blue-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
+        </svg>
+        <span class="text-xl font-semibold text-gray-800">AI Directory</span>
+      </div>
+
+      <div
+        class="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-4 py-2 w-72"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+          />
+        </svg>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search tools..."
+          class="bg-transparent outline-none text-sm text-gray-700 w-full"
+        />
+      </div>
+
+      <button
+        id="menu-btn"
+        class="md:hidden bg-gray-200 px-3 py-1 rounded text-sm font-medium"
+      >
+        Menu
+      </button>
+    </nav>
+
+    <!-- ADMIN BADGE -->
+    <div
+      id="admin-badge"
+      class="hidden bg-red-50 text-red-600 text-sm font-semibold py-2 px-6 border-b border-red-200 flex items-center justify-between"
+    >
+      <span>Admin Mode Enabled — you can add, edit, delete and hide tools</span>
+      <button
+        onclick="toggleShowHidden()"
+        id="show-hidden-btn"
+        class="ml-4 px-3 py-1 bg-white border border-red-200 rounded-lg text-xs hover:bg-red-50"
+      >
+        Show Hidden Tools
+      </button>
+    </div>
+
+    <!-- MOBILE SEARCH -->
+    <div class="md:hidden px-4 py-3 bg-white border-b border-gray-100">
+      <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-4 py-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+          />
+        </svg>
+        <input
+          id="search-input-mobile"
+          type="text"
+          placeholder="Search tools..."
+          class="bg-transparent outline-none text-sm text-gray-700 w-full"
+        />
+      </div>
+    </div>
+
+    <!-- MOBILE OVERLAY -->
+    <div
+      id="overlay"
+      class="hidden fixed inset-0 bg-black bg-opacity-40 z-30 md:hidden"
+      onclick="closeSidebar()"
+    ></div>
+
+    <div class="flex">
+      <!-- SIDEBAR -->
+      <aside
+        id="sidebar"
+        class="fixed md:sticky top-0 md:top-16 left-0 h-full md:h-screen w-64 bg-white shadow p-5 flex flex-col gap-2 z-40 md:z-10 transform -translate-x-full md:translate-x-0 transition-transform duration-300"
+      >
+        <div class="flex items-center justify-between mb-2 md:hidden">
+          <p
+            class="text-xs text-gray-400 uppercase font-semibold tracking-wider"
+          >
+            Categories
+          </p>
+          <button
+            onclick="closeSidebar()"
+            class="text-gray-400 hover:text-gray-600 text-xl font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        <p
+          class="text-xs text-gray-400 uppercase font-semibold mb-2 tracking-wider hidden md:block"
+        >
+          Categories
+        </p>
+
+        <button
+          data-category="all"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white text-left text-sm font-medium"
+        >
+          <span>⚡</span> All Tools
+        </button>
+        <button
+          data-category="chatbot"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>💬</span> Chatbot
+        </button>
+        <button
+          data-category="image"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>🖼️</span> Image
+        </button>
+        <button
+          data-category="video"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>🎬</span> Video
+        </button>
+        <button
+          data-category="writing"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>✍️</span> Writing
+        </button>
+        <button
+          data-category="resume"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>📄</span> Resume
+        </button>
+        <button
+          data-category="coding"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>💻</span> Coding
+        </button>
+        <button
+          data-category="audio"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>🎵</span> Audio
+        </button>
+        <button
+          data-category="productivity"
+          class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-left text-sm"
+        >
+          <span>🚀</span> Productivity
+        </button>
+
+        <div class="mt-auto pt-4 border-t border-gray-100">
+          <p id="tool-count" class="text-xs text-gray-400 text-center"></p>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <div class="flex-1 p-4 md:p-6 min-w-0">
+        <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 id="category-title" class="text-2xl font-bold text-gray-800">
+              All Tools
+            </h1>
+            <p id="category-subtitle" class="text-gray-400 text-sm mt-1">
+              Browse the best AI tools available
+            </p>
+          </div>
+          <button
+            id="add-tool-btn"
+            onclick="openAddForm()"
+            class="hidden px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 font-medium"
+          >
+            + Add Tool
+          </button>
+        </div>
+
+        <!-- ADD / EDIT FORM -->
+        <div
+          id="tool-form"
+          class="hidden bg-white border border-blue-100 rounded-xl p-5 mb-6 shadow-sm"
+        >
+          <h3 id="form-title" class="font-bold text-gray-800 mb-4">
+            Add New Tool
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input
+              id="form-name"
+              type="text"
+              placeholder="Tool name"
+              class="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+            />
+            <select
+              id="form-category"
+              class="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+            >
+              <option value="">Select category</option>
+              <option value="chatbot">Chatbot</option>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+              <option value="writing">Writing</option>
+              <option value="resume">Resume</option>
+              <option value="coding">Coding</option>
+              <option value="audio">Audio</option>
+              <option value="productivity">Productivity</option>
+            </select>
+            <input
+              id="form-link"
+              type="text"
+              placeholder="URL (https://...)"
+              class="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+            />
+            <input
+              id="form-image"
+              type="text"
+              placeholder="Logo URL (optional)"
+              class="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+            />
+            <textarea
+              id="form-description"
+              placeholder="Short description"
+              rows="2"
+              class="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400 md:col-span-2"
+            ></textarea>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button
+              onclick="submitForm()"
+              class="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 font-medium"
+            >
+              Save
+            </button>
+            <button
+              onclick="closeForm()"
+              class="px-4 py-2 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <main id="card-container" class="max-w-4xl"></main>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer
+      class="bg-white border-t border-gray-100 mt-10 py-6 px-6 text-center text-sm text-gray-400"
+    >
+      AI Directory — built with HTML, Tailwind CSS &amp; JavaScript
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
